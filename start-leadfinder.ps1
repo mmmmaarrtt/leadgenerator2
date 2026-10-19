@@ -39,7 +39,7 @@ while ($l.IsListening) {
         $b = [Text.Encoding]::UTF8.GetBytes('{"error":"Overpass nicht erreichbar"}')
       }
     } else {
-      if (-not $path) { $path = 'lead-finder-stuttgart.html' }
+      if (-not $path) { $path = 'index.html' }
       $f = Join-Path $root $path
       if ($path -notmatch '\.\.' -and (Test-Path $f -PathType Leaf)) {
         $b = [IO.File]::ReadAllBytes($f)

@@ -3,13 +3,14 @@
 Webbasiertes Tool zur Neukunden-Recherche für Out-of-Home-Werbung in der Region Stuttgart.
 Findet Unternehmen nach Branche und Umkreis, bewertet sie mit einem Lead-Score und zeigt die wichtigsten Kontaktdaten direkt an.
 
-## Starten
+**App öffnen:** https://mmmmaarrtt.github.io/leadgenerator2/
 
-1. Repository herunterladen (*Code → Download ZIP*) und entpacken.
-2. Doppelklick auf **`Lead-Finder-starten.bat`**.
-3. Der Browser öffnet sich mit `http://localhost:8765`. Das schwarze Fenster offen lassen, solange die App genutzt wird.
+## So funktioniert es
 
-Voraussetzung: Windows mit PowerShell (vorinstalliert). Keine weitere Installation nötig.
+- Die Web-App läuft auf GitHub Pages – einfach die URL im Browser öffnen, keine Installation.
+- Die Firmendaten kommen aus OpenStreetMap. Sie werden **nicht bei jeder Suche** abgefragt, sondern **einmal pro Woche** (Montag früh) von einem GitHub-Job geladen und in `data/cache.json` gespeichert.
+- Jede Suche filtert nur diese Datei – sofort und ohne Last auf dem OpenStreetMap-Server.
+- Manuell aktualisieren: *Actions → „Daten aktualisieren & veröffentlichen“ → Run workflow*.
 
 ## Funktionen
 
@@ -26,13 +27,14 @@ Voraussetzung: Windows mit PowerShell (vorinstalliert). Keine weitere Installati
 
 | Datei | Zweck |
 |---|---|
-| `lead-finder-stuttgart.html` | Die App (Oberfläche und Logik) |
-| `start-leadfinder.ps1` | Kleiner lokaler Server, leitet Datenabfragen an OpenStreetMap weiter |
-| `Lead-Finder-starten.bat` | Startet den Server per Doppelklick |
+| `index.html` | Die App (Oberfläche und Logik) |
+| `data/cache.json` | Firmendaten der Region, wird wöchentlich automatisch erneuert |
+| `scripts/build-data.mjs` | Lädt die Daten aus OpenStreetMap (eine Anfrage pro Branche, mit Pausen) |
+| `.github/workflows/update-data.yml` | Wöchentlicher Job: Daten laden + App veröffentlichen |
+| `start-leadfinder.ps1`, `Lead-Finder-starten.bat` | Optional: App lokal unter Windows starten |
 
 ## Hinweise
 
-- Datenquelle: OpenStreetMap über die Overpass API (kostenlos, ohne Anmeldung). Die Daten sind nicht vollständig, Telefonnummern fehlen häufig.
-- Der öffentliche Overpass-Server ist zeitweise überlastet. Die App versucht es dann automatisch erneut; sonst später nochmal suchen oder den Umkreis verkleinern.
-- Status und Notizen werden nur lokal im Browser gespeichert (nicht im Repository und nicht auf einem Server).
+- OpenStreetMap-Daten sind nicht vollständig, Telefonnummern fehlen häufig.
+- Status und Notizen der Pipeline werden nur lokal im jeweiligen Browser gespeichert – nicht im Repository und nicht auf einem Server.
 - Daten: © OpenStreetMap-Mitwirkende (ODbL). Karte: © Esri.
