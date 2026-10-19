@@ -1,0 +1,55 @@
+# Lädt jeden Montag die Firmendaten neu (data/cache.json) und veröffentlicht die Web-App auf GitHub Pages.
+# Bei Änderungen am Code wird nur neu veröffentlicht, ohne OpenStreetMap erneut abzufragen.
+name: Daten aktualisieren & veröffentlichen
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore: ['data/cache.json']
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        if: github.event_name != 'push' || hashFiles('data/cache.json') == ''
+        with:
+          node-version: 22
+
+      - name: Daten von OpenStreetMap laden
+        if: github.event_name != 'push' || hashFiles('data/cache.json') == ''
+        run: node scripts/build-data.mjs
+
+      - name: Daten ins Repo speichern
+        if: github.event_name != 'push' || hashFiles('data/cache.json') == ''
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/cache.json
+          git diff --cached --quiet || git commit -m "Daten aktualisiert ($(date +%F))"
+          git push
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4
